@@ -30,6 +30,7 @@
 #include <string.h> // For strlen
 #include <stdarg.h> // For va_list, va_start, va_end
 #include "STM32F4xx_Debug.h"
+#include "stm32_f466xx_servo.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -39,7 +40,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define ADC_BUFFER_LENGTH 20
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -50,10 +51,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-uint16_t adc_buffer[ADC_BUFFER_LENGTH];
-char msg_buffer[50];               // Buffer to hold your text string
-volatile uint8_t adc_avg_ready = 0;
-volatile uint32_t adc_average = 0;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -101,21 +99,19 @@ int main(void)
   MX_USART2_UART_Init();
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
-  printf_uart("Starting ADC DMA...\r\n");
-  HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adc_buffer, ADC_BUFFER_LENGTH);
+  Servo_Init();
+  
+  // HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adc_buffer, ADC_BUFFER_LENGTH);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    if (adc_avg_ready != 0)
-    {
-      adc_avg_ready = 0;
-      float voltage = (float)(adc_average) * (3.3f / 4095.0f);
-      printf_uart("ADC Average: %f V\r\n", (double)voltage);
-    }
-    HAL_Delay(100);
+    float angle = readWrappedAngle(servoReadAngle());
+    printf_uart("Servo Angle: %.2f degrees\r\n", angle);
+    setServoAngle(0.0f); // Increment angle by 10 degrees
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -175,21 +171,7 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
-{
-  if (hadc->Instance == ADC1)
-  {
-    uint32_t sum = 0;
 
-    for (uint32_t i = 0; i < ADC_BUFFER_LENGTH; i++)
-    {
-      sum += (adc_buffer[i] & 0x0FFFu);
-    }
-
-    adc_average = sum / ADC_BUFFER_LENGTH;
-    adc_avg_ready = 1;
-  }
-}
 /* USER CODE END 4 */
 
 /**

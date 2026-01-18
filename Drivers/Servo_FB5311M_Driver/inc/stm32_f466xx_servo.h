@@ -23,10 +23,10 @@ void setServoAngle(float angle);
 
 /**
  * @brief Set the servo pulse width
- * @param pulse_width: Desired pulse width in microseconds
+ * @param effort: Control effort (PWM offset from center)
  * @return None
  */
-void setServoPulseWidth(uint16_t pulse_width);
+void setServoPulseWidth(float effort);
 
 /**
  * @brief Read the current servo angle
@@ -42,5 +42,12 @@ float servoReadAngle(void);
  * @return Mapped servo angle in degrees
  */
 float map_voltage_to_angle(float voltage,float min_angle,float max_angle);
+
+/**
+ * @brief Read and wrap angle to [-180, 180]
+ * @param angle: Input angle in degrees
+ * @return Wrapped angle in degrees
+ */
+float readWrappedAngle(float angle);
 
 #endif /* __STM32_F466XX_SERVO_H */

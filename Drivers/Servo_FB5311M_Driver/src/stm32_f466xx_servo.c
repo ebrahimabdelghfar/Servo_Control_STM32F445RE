@@ -4,7 +4,9 @@
 #include "servo_config.h"
 #include "adc.h"
 #include "tim.h"
-#include "STM32F4xx_Debug.h"
+#include "STM32_F4xx_PID.h"
+
+ServoPID myServoPID;
 uint16_t adc_buffer[ADC_BUFFER_SIZE];
 volatile uint8_t adc_avg_ready = 0;
 volatile uint16_t adc_average = 0;
@@ -16,37 +18,16 @@ uint32_t lastUpdate = 0;
 
 void Servo_Init(void)
 {
-  printf_uart("Initializing ADC...\r\n");
-  if (hadc1.DMA_Handle == NULL)
-  {
-    printf_uart("ADC DMA handle is NULL\r\n");
-    return;
-  }
-
-  HAL_ADC_Stop_DMA(&hadc1);
-  HAL_StatusTypeDef adc_status = HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adc_buffer, ADC_BUFFER_SIZE);
-  if (adc_status != HAL_OK)
-  {
-    uint32_t adc_error = HAL_ADC_GetError(&hadc1);
-    printf_uart("ADC DMA start failed: status=%lu error=0x%08lx state=0x%08lx\r\n",
-                (uint32_t)adc_status, (uint32_t)adc_error, (uint32_t)hadc1.State);
-    return;
-  }
-  printf_uart("Initializing PWM...\r\n");
-  if (HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  setServoPulseWidth(1500); // 1500us = Stop for continuous servo
+  HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adc_buffer, ADC_BUFFER_SIZE);
+  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
+  setServoPulseWidth(0.0f); // 0.0f effort = Center position
+  PID_Init(&myServoPID, 10.0f, 0.5f, 0.01f, 200.0f, 500.0f);
+  HAL_Delay(100); // Wait for ADC to stabilize
 }
 
-float map_voltage_to_angle(float voltage, float min_angle, float max_angle)
+void setServoPulseWidth(float effort)
 {
-  return (voltage - 0.0f) * (max_angle - min_angle) / (SERVO_MAX_VOLTAGE - 0.0f) + min_angle;
-}
-
-void setServoPulseWidth(uint16_t pulse_width)
-{
+  uint16_t pulse_width = (uint16_t)(PWM_CENTER + effort);
   // Safety Clamping
   if (pulse_width < MIN_PWM_PULSE_WIDTH) pulse_width = MIN_PWM_PULSE_WIDTH;
   if (pulse_width > MAX_PWM_PULSE_WIDTH) pulse_width = MAX_PWM_PULSE_WIDTH;
@@ -60,9 +41,10 @@ float servoReadAngle(void)
   if (adc_avg_ready != 0)
   {
     adc_avg_ready = 0;
-    float adc_value = (float)adc_average; // Use the averaged ADC value
-    float voltage = (float)((adc_value) * (REF_NUCLEO_VOLTAGE / ADC_RESOLUTION));
-    float angle = map_voltage_to_angle(voltage, SERVO_MIN_ANGLE, SERVO_MAX_ANGLE);
+    // Map ADC average to Voltage
+    float voltage = ((float)adc_average / ADC_RESOLUTION) * REF_NUCLEO_VOLTAGE;
+    // Map Voltage to Angle
+    float angle = (voltage / SERVO_MAX_VOLTAGE) * SERVO_MAX_ANGLE;
     last_angle = angle; // Update the last known angle
     return angle;
   }
@@ -74,28 +56,27 @@ float servoReadAngle(void)
 
 void setServoAngle(float angle)
 {
-  uint32_t now = HAL_GetTick(); // Returns milliseconds
-  float dt = (now - lastUpdate) / 1000.0f;
-  if (dt <= 0.0f) return 0.0f; // Prevent division by zero
-  float error = angle - servoReadAngle();
-  integralTerm += error * dt;
-  // Constrain Integral
-  if (integralTerm > INTEGRAL_WINDUP_GUARD) integralTerm = INTEGRAL_WINDUP_GUARD;
-  if (integralTerm < -INTEGRAL_WINDUP_GUARD) integralTerm = -INTEGRAL_WINDUP_GUARD;
-  // Derivative
-  float derivative = (error - prevError) / dt;
-  // Calculate Output
-  float output = (SERVO_KP * error) + (SERVO_KI * integralTerm) + (SERVO_KD * derivative);
-  // Save history
-  prevError = error;
-  lastUpdate = now;
-  // Clamp Output
-  if (output > OUTPUT_LIMIT) output = OUTPUT_LIMIT;
-  if (output < -OUTPUT_LIMIT) output = -OUTPUT_LIMIT;
-  // Here we map +/- controlEffort to 1500us.
-  // We multiply by ~11 (since 1 degree ~ 11us pulse width change) to keep PID gains similar
-  int servoCommand_us = 1500 + (int)(output * 11.1f);
-  setServoPulseWidth(servoCommand_us);
+  // Clamp angle to valid range
+  if (angle < SERVO_MIN_ANGLE) angle = SERVO_MIN_ANGLE;
+  if (angle > SERVO_MAX_ANGLE) angle = SERVO_MAX_ANGLE;
+
+  // Read current angle
+  float current_angle = servoReadAngle();
+
+  // Compute PID output
+  float pid_output = PID_Compute(&myServoPID, angle, current_angle);
+
+  // Set servo pulse width based on PID output
+  setServoPulseWidth(pid_output);
+  
+}
+
+float readWrappedAngle(float angle)
+{
+  // Normalize angle to [0, 180]
+  angle = fmodf(angle, 180.0f);
+  if (angle < 0.0f) angle += 180.0f;
+  return angle;
 }
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
