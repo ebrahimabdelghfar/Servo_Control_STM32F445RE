@@ -67,7 +67,7 @@ flowchart TD
   J --> K[Kalman filter]
   K --> L[UART print angle]
   L --> M[PID compute setpoint]
-  M --> N[Update PWM (TIM2 CH1)]
+  M --> N[Update PWM TIM2 CH1]
   N --> F
 ```
 
