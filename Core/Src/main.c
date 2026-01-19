@@ -31,13 +31,11 @@
 #include <stdarg.h> // For va_list, va_start, va_end
 #include "STM32F4xx_Debug.h"
 #include "stm32_f466xx_servo.h"
-#include "STM32F4xx_Servo_Filter.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-Median3_t filterStage1;
-KalmanState_t filterStage2;
+
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -102,8 +100,7 @@ int main(void)
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
   Servo_Init();
-  Median3_Init(&filterStage1);
-  Kalman_Init(&filterStage2, 0.02f, 0.001f, 0.001f, 5.0f);
+
   // HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adc_buffer, ADC_BUFFER_LENGTH);
 
   /* USER CODE END 2 */
@@ -113,10 +110,8 @@ int main(void)
   while (1)
   {
     float angle = readWrappedAngle(servoReadAngle());
-    float despiked_angle = Median3_Apply(&filterStage1, angle);
-    float filtered_angle = Kalman_Update(&filterStage2, despiked_angle);
-    printf_uart("Servo Angle unfiltered: %.2f degrees ..... filtered: %.2f degrees\r\n", angle, filtered_angle);
-    setServoAngle(0.0f); // Increment angle by 10 degrees
+    printf_uart("Servo Angle unfiltered: %.2f degrees \r\n", angle);
+    setServoAngle(10.0f); // Increment angle by 10 degrees
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */

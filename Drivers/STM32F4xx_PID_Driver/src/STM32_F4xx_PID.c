@@ -38,7 +38,7 @@ float PID_Compute(ServoPID *pid, float setpoint, float measurement) {
     float dt = (float)(now - pid->lastUpdateTime) / 1000.0f; // Convert ms to seconds
     // clamp 0 
     if (setpoint <= 0.0f && setpoint >= -0.0f) {
-        setpoint=0.5f;
+        setpoint=1.0f; //prevent reseting and wrapping issues
     }
     // Clamp dt to reasonable bounds
     if (dt < pid->minDt) dt = pid->minDt;

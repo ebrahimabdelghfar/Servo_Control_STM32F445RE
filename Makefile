@@ -66,9 +66,9 @@ Core/Src/tim.c \
 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.c \
 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim_ex.c \
 Drivers/STM32F4xx_Debug_Driver/src/STM32F4xx_Debug.c \
-Drivers/Servo_FB5311M_Driver/src/stm32_f466xx_servo.c \
-Drivers/STM32_F4xx_PID_Driver/src/STM32_F4xx_PID.c \
-Drivers/STM32F4XX_Filter_Driver/src/STM32F4xx_Servo_Filter.c
+Drivers/STM32F4xx_Servo_Driver/src/stm32_f466xx_servo.c \
+Drivers/STM32F4xx_PID_Driver/src/STM32_F4xx_PID.c \
+Drivers/STM32F4xx_Filter_Driver/src/STM32F4xx_Servo_Filter.c
 # ASM sources
 ASM_SOURCES =  startup_stm32f446xx.s
 
@@ -133,9 +133,9 @@ C_INCLUDES =  \
 -IDrivers/CMSIS/Device/ST/STM32F4xx/Include \
 -IDrivers/CMSIS/Include \
 -IDrivers/STM32F4xx_Debug_Driver/inc \
--IDrivers/Servo_FB5311M_Driver/inc \
--IDrivers/STM32_F4xx_PID_Driver/inc \
--IDrivers/STM32F4XX_Filter_Driver/inc
+-IDrivers/STM32F4xx_Servo_Driver/inc \
+-IDrivers/STM32F4xx_PID_Driver/inc \
+-IDrivers/STM32F4xx_Filter_Driver/inc
 
 
 # compile gcc flags

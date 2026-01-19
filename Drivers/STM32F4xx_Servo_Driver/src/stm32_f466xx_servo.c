@@ -5,8 +5,11 @@
 #include "adc.h"
 #include "tim.h"
 #include "STM32_F4xx_PID.h"
+#include "STM32F4xx_Servo_Filter.h"
 
 ServoPID myServoPID;
+Median3_t filterStage1;
+KalmanState_t filterStage2;
 uint16_t adc_buffer[ADC_BUFFER_SIZE];
 volatile uint8_t adc_avg_ready = 0;
 volatile uint16_t adc_average = 0;
@@ -19,10 +22,12 @@ uint32_t lastUpdate = 0;
 void Servo_Init(void)
 {
   HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adc_buffer, ADC_BUFFER_SIZE);
+  HAL_Delay(100); // Wait for ADC to stabilize
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
   setServoPulseWidth(0.0f); // 0.0f effort = Center position
-  PID_Init(&myServoPID, 10.0f, 0.5f, 0.01f, 200.0f, 500.0f);
-  HAL_Delay(100); // Wait for ADC to stabilize
+  PID_Init(&myServoPID, SERVO_KP, SERVO_KI, SERVO_KD, INTEGRAL_WINDUP_GUARD, OUTPUT_LIMIT);
+  Median3_Init(&filterStage1);
+  Kalman_Init(&filterStage2, 0.02f, SERVO_FILTER_Q_ANGLE, SERVO_FILTER_Q_VEL, SERVO_FILTER_R_MEAS);
 }
 
 void setServoPulseWidth(float effort)
@@ -45,8 +50,10 @@ float servoReadAngle(void)
     float voltage = ((float)adc_average / ADC_RESOLUTION) * REF_NUCLEO_VOLTAGE;
     // Map Voltage to Angle
     float angle = (voltage / SERVO_MAX_VOLTAGE) * SERVO_MAX_ANGLE;
-    last_angle = angle; // Update the last known angle
-    return angle;
+    float despiked_angle = Median3_Apply(&filterStage1, angle);
+    float filtered_angle = Kalman_Update(&filterStage2, despiked_angle);
+    last_angle = filtered_angle; // Update the last known angle
+    return filtered_angle;
   }
   else
   {
@@ -62,7 +69,6 @@ void setServoAngle(float angle)
 
   // Read current angle
   float current_angle = servoReadAngle();
-
   // Compute PID output
   float pid_output = PID_Compute(&myServoPID, angle, current_angle);
 
