@@ -97,7 +97,3 @@ Pin mappings and peripheral configuration can be inspected/edited in:
 - **Header not found on Linux**: Ensure include paths in `Makefile` match folder case. The filter driver folder is `STM32F4XX_Filter_Driver` (uppercase `XX`).
 - **No UART output**: Check USART2 pins, baud rate, and terminal settings.
 - **No servo movement**: Verify PWM output pin, power, and servo voltage range.
-
-## License
-
-Source files include STMicroelectronics headers. If a project‑level `LICENSE` file is not present, the code is provided as‑is per the file headers.
