@@ -51,6 +51,26 @@ The current `main.c`:
 - Reads the filtered servo angle and prints it via UART
 - Commands a fixed angle using `setServoAngle(10.0f)`
 
+## Control Flow
+
+```mermaid
+flowchart TD
+  A[Power On / Reset] --> B[HAL_Init]
+  B --> C[SystemClock_Config]
+  C --> D[Init GPIO/DMA/ADC/UART/TIM]
+  D --> E[Servo_Init]
+  E --> F[Start main loop]
+  F --> G[Read ADC DMA buffer]
+  G --> H[Compute average voltage]
+  H --> I[Map voltage to angle]
+  I --> J[Median3 filter]
+  J --> K[Kalman filter]
+  K --> L[UART print angle]
+  L --> M[PID compute setpoint]
+  M --> N[Update PWM (TIM2 CH1)]
+  N --> F
+```
+
 ## Configuration
 
 Tune system behavior in:
