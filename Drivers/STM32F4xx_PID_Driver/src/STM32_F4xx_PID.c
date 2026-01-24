@@ -7,9 +7,9 @@
 
 // Helper function to normalize angle to [-180, 180]
 static float constrainAngle(float x) {
-    x = fmod(x + 180, 360);
-    if (x < 0) x += 360;
-    return x - 180;
+    x = fmod(x + 180.0f, 360.0f);
+    if (x < 0) x += 360.0f;
+    return x - 180.0f;
 }
 
 void PID_Init(ServoPID *pid, float kp, float ki, float kd, float i_lim, float out_lim) {
