@@ -36,10 +36,6 @@ float PID_Compute(ServoPID *pid, float setpoint, float measurement) {
     // 0. Calculate adaptive dt from elapsed time
     uint32_t now = HAL_GetTick();
     float dt = (float)(now - pid->lastUpdateTime) / 1000.0f; // Convert ms to seconds
-    // clamp 0 
-    if (setpoint <= 0.0f && setpoint >= -0.0f) {
-        setpoint=1.0f; //prevent reseting and wrapping issues
-    }
     // Clamp dt to reasonable bounds
     if (dt < pid->minDt) dt = pid->minDt;
     if (dt > pid->maxDt) dt = pid->maxDt;
