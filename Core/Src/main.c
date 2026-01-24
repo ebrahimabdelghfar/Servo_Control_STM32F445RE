@@ -29,6 +29,7 @@
 #include <stdio.h>  // For sprintf
 #include <string.h> // For strlen
 #include <stdarg.h> // For va_list, va_start, va_end
+#include <math.h>
 #include "STM32F4xx_Debug.h"
 #include "stm32_f466xx_servo.h"
 /* USER CODE END Includes */
@@ -100,7 +101,7 @@ int main(void)
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
   Servo_Init();
-
+  float constrainAngle2(float x);
   // HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adc_buffer, ADC_BUFFER_LENGTH);
 
   /* USER CODE END 2 */
@@ -109,9 +110,9 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    float angle = readWrappedAngle(servoReadAngle());
+    float angle = constrainAngle2(servoReadAngle());
     printf_uart("Servo Angle unfiltered: %.2f degrees \r\n", angle);
-    setServoAngle(10.0f); // Increment angle by 10 degrees
+    setServoAngle(0.0f); // Increment angle by 10 degrees
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -171,7 +172,13 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+float constrainAngle2(float x)
+{
+  x = fmod(x + 180.0f, 360.0f);
+  if (x < 0)
+    x += 360.0f;
+  return x - 180.0f;
+}
 /* USER CODE END 4 */
 
 /**

@@ -4,14 +4,14 @@
  * @file servo_config.h
  * @brief Configuration parameters for the FB5311M Servo Driver
 */
-#define SERVO_MIN_ANGLE         0.0f    // Minimum angle in degrees
+#define SERVO_MIN_ANGLE         -180.0f    // Minimum angle in degrees
 #define SERVO_MAX_VOLTAGE       1.65f    // Maximum voltage in volts
 #define REF_NUCLEO_VOLTAGE       3.3f    // Minimum voltage in volts
 #define SERVO_MAX_ANGLE        180.0f  // Maximum angle in degrees
 #define SERVO_PWM_FREQUENCY     50      // PWM frequency in Hz
 #define SERVO_KP          20.0f    // Proportional gain for control  
-#define SERVO_KI          0.0f   // Integral gain for control
-#define SERVO_KD          0.10f  // Derivative gain for control
+#define SERVO_KI          1.0f   // Integral gain for control
+#define SERVO_KD          0.01f  // Derivative gain for control
 #define SERVO_FILTER_Q_ANGLE    0.1f    // Kalman filter process noise for angle
 #define SERVO_FILTER_Q_VEL      0.1f    // Kalman filter process noise for velocity
 #define SERVO_FILTER_R_MEAS     0.01f    // Kalman filter measurement noise
