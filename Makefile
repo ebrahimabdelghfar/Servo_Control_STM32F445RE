@@ -68,12 +68,13 @@ Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim_ex.c \
 Drivers/STM32F4xx_Debug_Driver/src/STM32F4xx_Debug.c \
 Drivers/STM32F4xx_Servo_Driver/src/stm32F4xx_servo.c \
 Drivers/STM32F4xx_PID_Driver/src/STM32F4xx_PID.c \
-Drivers/STM32F4xx_Filter_Driver/src/STM32F4xx_Servo_Filter.c
+Drivers/STM32F4xx_Filter_Driver/src/STM32F4xx_Servo_Filter.c \
+Drivers/STM32F4xx_Brushless_Driver/src/STM32F4xx_Brushless.c
 # ASM sources
 # ASM sourcesASM_SOURCES =  startup_stm32f446xx.s
 
 # ASMM sources
-ASMM_SOURCES = 
+ASMM_SOURCES = startup_stm32f446xx.S
 
 
 
@@ -135,7 +136,8 @@ C_INCLUDES =  \
 -IDrivers/STM32F4xx_Debug_Driver/inc \
 -IDrivers/STM32F4xx_Servo_Driver/inc \
 -IDrivers/STM32F4xx_PID_Driver/inc \
--IDrivers/STM32F4xx_Filter_Driver/inc
+-IDrivers/STM32F4xx_Filter_Driver/inc \
+-IDrivers/STM32F4xx_Brushless_Driver/inc
 
 
 # compile gcc flags

@@ -31,7 +31,8 @@
 #include <stdarg.h> // For va_list, va_start, va_end
 #include <math.h>
 #include "STM32F4xx_Debug.h"
-#include "stm32F4xx_servo.h"
+#include "STM32F4xx_servo.h"
+#include "STM32F4xx_Brushless.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -102,9 +103,8 @@ int main(void)
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
   Servo_Init();
-  float constrainAngle2(float x);
-  // HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adc_buffer, ADC_BUFFER_LENGTH);
-
+  Brushless_Init();
+  debug_uart_rx_init();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -112,7 +112,13 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-
+    if (debug_uart_available() > 0)
+    {
+      int received = debug_uart_getchar();
+      // Echo received character with numeric value
+      printf_uart("Received: '%c' \r\n",  (char)received);
+    }
+    /* USER CODE END WHILE */
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
