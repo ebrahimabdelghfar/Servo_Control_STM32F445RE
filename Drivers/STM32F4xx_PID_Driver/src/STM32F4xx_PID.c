@@ -2,7 +2,7 @@
  * pid_control.c
  */
 
-#include "STM32_F4xx_PID.h"
+#include "STM32F4xx_PID.h"
 #include "stm32f4xx_hal.h"
 
 // Helper function to normalize angle to [-180, 180]

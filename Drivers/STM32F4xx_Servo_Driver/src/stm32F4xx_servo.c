@@ -1,10 +1,10 @@
 #include <math.h> // For fmax, fmin
 #include <stdint.h>
-#include "stm32_f466xx_servo.h"
+#include "stm32F4xx_servo.h"
 #include "servo_config.h"
 #include "adc.h"
 #include "tim.h"
-#include "STM32_F4xx_PID.h"
+#include "STM32F4xx_PID.h"
 #include "STM32F4xx_Servo_Filter.h"
 
 ServoPID myServoPID;

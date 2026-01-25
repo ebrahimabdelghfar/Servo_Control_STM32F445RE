@@ -31,7 +31,7 @@
 #include <stdarg.h> // For va_list, va_start, va_end
 #include <math.h>
 #include "STM32F4xx_Debug.h"
-#include "stm32_f466xx_servo.h"
+#include "stm32F4xx_servo.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/

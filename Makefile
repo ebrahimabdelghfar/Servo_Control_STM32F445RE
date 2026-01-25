@@ -66,8 +66,8 @@ Core/Src/tim.c \
 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.c \
 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim_ex.c \
 Drivers/STM32F4xx_Debug_Driver/src/STM32F4xx_Debug.c \
-Drivers/STM32F4xx_Servo_Driver/src/stm32_f466xx_servo.c \
-Drivers/STM32F4xx_PID_Driver/src/STM32_F4xx_PID.c \
+Drivers/STM32F4xx_Servo_Driver/src/stm32F4xx_servo.c \
+Drivers/STM32F4xx_PID_Driver/src/STM32F4xx_PID.c \
 Drivers/STM32F4xx_Filter_Driver/src/STM32F4xx_Servo_Filter.c
 # ASM sources
 ASM_SOURCES =  startup_stm32f446xx.s
