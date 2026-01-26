@@ -25,14 +25,24 @@ void setBrushlessSpeed(float speed)
   static float currentThrottle = NEUTRAL;
   float targetThrottle;
 
+  // Apply expo curve to increase sensitivity around small changes
+  float x = speed / 100.0f;
+  if (x > 1.0f) x = 1.0f;
+  if (x < -1.0f) x = -1.0f;
+  float expo = BRUSHLESS_EXPO;
+  if (expo < 0.0f) expo = 0.0f;
+  if (expo > 1.0f) expo = 1.0f;
+  float x3 = x * x * x;
+  float shaped = (1.0f - expo) * x + expo * x3;
+
   // Map speed (-100.0 to 100.0) to pulse width
-  if (speed > 0.0f)
+  if (shaped > 0.0f)
   {
-    targetThrottle = NEUTRAL + ((MAX_THROTTLE - NEUTRAL) * (speed / 100.0f));
+    targetThrottle = NEUTRAL + ((MAX_THROTTLE - NEUTRAL) * shaped);
   }
-  else if (speed < 0.0f)
+  else if (shaped < 0.0f)
   {
-    targetThrottle = NEUTRAL + ((NEUTRAL - MIN_THROTTLE) * (speed / 100.0f));
+    targetThrottle = NEUTRAL + ((NEUTRAL - MIN_THROTTLE) * shaped);
   }
   else
   {
