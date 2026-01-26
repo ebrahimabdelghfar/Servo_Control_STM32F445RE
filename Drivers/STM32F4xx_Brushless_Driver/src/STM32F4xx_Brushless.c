@@ -7,7 +7,7 @@
 
 void Brushless_Init(void)
 {
-  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
+  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_4);
   SetESCPulseWidth(NEUTRAL); // 0.0f effort = 0% duty cycle
 }
 
@@ -17,7 +17,7 @@ void SetESCPulseWidth(float pulse_us)
   if (pulse_us < MIN_THROTTLE) pulse_us = MIN_THROTTLE;
   if (pulse_us > MAX_THROTTLE) pulse_us = MAX_THROTTLE;
   // Update Timer Compare Register (Duty Cycle)
-  __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, (uint32_t)pulse_us);
+  __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, (uint32_t)pulse_us);
 }
 
 void setBrushlessSpeed(float speed)

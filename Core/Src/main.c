@@ -100,11 +100,13 @@ int main(void)
   MX_ADC1_Init();
   MX_USART2_UART_Init();
   MX_TIM2_Init();
-  MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
   Servo_Init();
   Brushless_Init();
   debug_uart_rx_init();
+  debug_uart_set_echo(1);
+  printf_uart("Brushless Motor Control Initialized\r\n");
+  printf_uart("Send a number then press Enter.\r\n");
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -112,11 +114,18 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-    if (debug_uart_available() > 0)
+    if (debug_uart_available())
     {
-      int received = debug_uart_getchar();
-      // Echo received character with numeric value
-      printf_uart("Received: '%c' \r\n",  (char)received);
+      float received = 0.0f;
+      int status = debug_uart_getfloat(&received);
+      if (status == 1)
+      {
+        printf_uart("Received: %.4f\r\n", received);
+      }
+      else if (status < 0)
+      {
+        printf_uart("Parse error\r\n");
+      }
     }
     /* USER CODE END WHILE */
     /* USER CODE BEGIN 3 */

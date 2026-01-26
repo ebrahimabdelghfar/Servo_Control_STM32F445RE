@@ -31,6 +31,20 @@ size_t debug_uart_available(void);
 int debug_uart_getchar(void);
 
 /**
+ * @brief  Get one integer from a complete line (non-blocking).
+ * @param  out_value: destination for parsed integer
+ * @retval 1 on success, 0 if no complete line, -1 on parse/arg error
+ */
+int debug_uart_getint(int *out_value);
+
+/**
+ * @brief  Get one float from a complete line (non-blocking).
+ * @param  out_value: destination for parsed float
+ * @retval 1 on success, 0 if no complete line, -1 on parse/arg error
+ */
+int debug_uart_getfloat(float *out_value);
+
+/**
  * @brief  Read one line (terminated by \r or \n) from RX buffer.
  * @param  out: destination buffer
  * @param  out_size: size of destination buffer

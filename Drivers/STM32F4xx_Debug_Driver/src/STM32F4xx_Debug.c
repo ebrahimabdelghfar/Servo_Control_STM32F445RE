@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
+#include <stdlib.h>
 #include "stdint.h"
 
 #define DEBUG_UART_RX_BUFFER_SIZE 128U
@@ -350,6 +351,83 @@ int debug_uart_getchar(void)
     return (int)byte;
 }
 
+int debug_uart_getint(int *out_value)
+{
+    if (out_value == NULL)
+    {
+        return -1;
+    }
+
+    char line[64];
+    int len = debug_uart_readline(line, sizeof(line));
+    if (len == 0)
+    {
+        return 0;
+    }
+
+    const char *p = line;
+    while (isspace((unsigned char)*p))
+    {
+        p++;
+    }
+
+    int sign = 1;
+    if (*p == '-')
+    {
+        sign = -1;
+        p++;
+    }
+    else if (*p == '+')
+    {
+        p++;
+    }
+
+    if (!isdigit((unsigned char)*p))
+    {
+        return -1;
+    }
+
+    long value = 0;
+    while (isdigit((unsigned char)*p))
+    {
+        value = (value * 10L) + (long)(*p - '0');
+        p++;
+    }
+
+    *out_value = (int)(sign * value);
+    return 1;
+}
+
+int debug_uart_getfloat(float *out_value)
+{
+    if (out_value == NULL)
+    {
+        return -1;
+    }
+
+    char line[64];
+    int len = debug_uart_readline(line, sizeof(line));
+    if (len == 0)
+    {
+        return 0;
+    }
+
+    char *end = NULL;
+    float value = strtof(line, &end);
+    while ((end != NULL) && isspace((unsigned char)*end))
+    {
+        end++;
+    }
+
+    if ((end == NULL) || (end == line) || (*end != '\0'))
+    {
+        return -1;
+    }
+
+    *out_value = value;
+    return 1;
+}
+
 int debug_uart_readline(char *out, size_t out_size)
 {
     debug_uart_rx_ensure_started();
@@ -454,6 +532,10 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 {
     if (huart->Instance == USART2)
     {
+        if (debug_uart_echo_busy)
+        {
+            debug_uart_echo_busy = 0U;
+        }
         uart_tx_busy = 0; // Clear the flag, ready for next message
     }
 }
@@ -463,6 +545,12 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     if (huart->Instance == USART2)
     {
         debug_uart_rx_push(debug_rx_byte);
+        if ((debug_uart_echo_enabled != 0U) && (debug_uart_echo_busy == 0U))
+        {
+            debug_uart_echo_busy = 1U;
+            debug_uart_echo_byte = debug_rx_byte;
+            (void)HAL_UART_Transmit_IT(&huart2, (uint8_t *)&debug_uart_echo_byte, 1U);
+        }
         (void)HAL_UART_Receive_IT(&huart2, (uint8_t *)&debug_rx_byte, 1U);
     }
 }
@@ -473,4 +561,9 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
     {
         (void)HAL_UART_Receive_IT(&huart2, (uint8_t *)&debug_rx_byte, 1U);
     }
+}
+
+void debug_uart_set_echo(uint8_t enable)
+{
+    debug_uart_echo_enabled = (enable != 0U) ? 1U : 0U;
 }
