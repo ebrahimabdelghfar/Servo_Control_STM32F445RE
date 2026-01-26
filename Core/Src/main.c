@@ -105,8 +105,7 @@ int main(void)
   Brushless_Init();
   debug_uart_rx_init();
   debug_uart_set_echo(1);
-  printf_uart("Brushless Motor Control Initialized\r\n");
-  printf_uart("Send a number then press Enter.\r\n");
+  float received = 0.0f;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -116,7 +115,6 @@ int main(void)
     /* USER CODE END WHILE */
     if (debug_uart_available())
     {
-      float received = 0.0f;
       int status = debug_uart_getfloat(&received);
       if (status == 1)
       {
@@ -127,6 +125,7 @@ int main(void)
         printf_uart("Parse error\r\n");
       }
     }
+    setBrushlessSpeed(received);
     /* USER CODE END WHILE */
     /* USER CODE BEGIN 3 */
   }
