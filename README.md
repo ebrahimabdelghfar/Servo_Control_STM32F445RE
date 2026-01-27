@@ -11,9 +11,9 @@ This project targets the STM32F446xx family and implements a closed-loop servo c
 - **Debug**: UART printf retargeting
 
 Key logic lives in:
-- `Drivers/STM32F4xx_Servo_Driver/src/stm32_f466xx_servo.c`
-- `Drivers/STM32F4XX_Filter_Driver/src/STM32F4xx_Servo_Filter.c`
-- `Drivers/STM32F4xx_PID_Driver/src/STM32_F4xx_PID.c`
+- `Drivers/STM32F4xx_Servo_Driver/src/stm32F4xx_servo.c`
+- `Drivers/STM32F4xx_Filter_Driver/src/STM32F4xx_Servo_Filter.c`
+- `Drivers/STM32F4xx_PID_Driver/src/STM32F4xx_PID.c`
 - `Core/Src/main.c`
 
 ## Build
@@ -28,6 +28,9 @@ Artifacts are written to `build/`:
 - `build/test_multi_adc_pwm.elf`
 - `build/test_multi_adc_pwm.hex`
 - `build/test_multi_adc_pwm.bin`
+
+- Additional developer guidance is provided in `CLAUDE.md`.
+
 
 ## Flash
 
@@ -85,12 +88,21 @@ Filter behavior:
 
 ## Hardware Notes
 
-- ADC feedback is expected on **ADC1**
-- PWM output uses **TIM2 CH1**
-- UART debug uses **USART2**
+- ADC feedback is expected on **ADC1** (e.g., PA0 – ADC1_IN0)
+- PWM output uses **TIM2 CH1** (e.g., PA0 – TIM2_CH1)
+- UART debug uses **USART2** (TX: PA2, RX: PA3)
 
-Pin mappings and peripheral configuration can be inspected/edited in:
-- `test_multi_adc_pwm.ioc`
+### Pinout Diagram
+
+```mermaid
+flowchart LR
+    PA0[PA0] -->|ADC1_IN0| ADC[ADC1]
+    PA0 -->|TIM2_CH1| PWM[TIM2 Channel 1]
+    PA2[PA2] -->|USART2_TX| UART_TX[USART2 TX]
+    PA3[PA3] -->|USART2_RX| UART_RX[USART2 RX]
+```
+
+Pin mappings and peripheral configuration can be inspected/edited in the STM32CubeMX project file `test_multi_adc_pwm.ioc`.
 
 ## Troubleshooting
 
