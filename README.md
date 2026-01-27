@@ -97,7 +97,8 @@ Filter behavior:
 ```mermaid
 flowchart LR
     PA1[PA1] -->|ADC1_IN1| ADC[ADC1]
-    PA0[PA0] -->|TIM2_CH1| PWM[TIM2 Channel 1]
+    PA0[PA0] -->|TIM2_CH1| PWM1[TIM2 Channel 1]
+    PB2[PB2] -->|TIM2_CH4| PWM4[TIM2 Channel 4]
     PA2[PA2] -->|USART2_TX| UART_TX[USART2 TX]
     PA3[PA3] -->|USART2_RX| UART_RX[USART2 RX]
 ```
