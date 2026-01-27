@@ -88,21 +88,32 @@ Filter behavior:
 
 ## Hardware Notes
 
-- ADC feedback is expected on **ADC1** (e.g., PA0 – ADC1_IN0)
-- PWM output uses **TIM2 CH1** (e.g., PA0 – TIM2_CH1)
+- ADC feedback is expected on **ADC1_IN1** (PA1)
+- PWM output uses **TIM2 CH1** (PA0) – TIM2 CH4 is on PB2 (available but not used for servo)
 - UART debug uses **USART2** (TX: PA2, RX: PA3)
 
 ### Pinout Diagram
 
 ```mermaid
 flowchart LR
-    PA0[PA0] -->|ADC1_IN0| ADC[ADC1]
-    PA0 -->|TIM2_CH1| PWM[TIM2 Channel 1]
+    PA1[PA1] -->|ADC1_IN1| ADC[ADC1]
+    PA0[PA0] -->|TIM2_CH1| PWM[TIM2 Channel 1]
     PA2[PA2] -->|USART2_TX| UART_TX[USART2 TX]
     PA3[PA3] -->|USART2_RX| UART_RX[USART2 RX]
 ```
 
 Pin mappings and peripheral configuration can be inspected/edited in the STM32CubeMX project file `test_multi_adc_pwm.ioc`.
+
+## All Used Pins and Configuration
+
+| Pin | Port | Function | Mode | Alternate Function / Details |
+|-----|------|----------|------|--------------------------------|
+| PA0 | A | PWM output for servo (TIM2_CH1) | Alternate Function Push‑Pull | AF1 (TIM2) |
+| PB2 | B | PWM output for brushless ESC (TIM2_CH4) | Alternate Function Push‑Pull | AF1 (TIM2) |
+| PA1 | A | ADC input for feedback (ADC1_IN1) | Analog | – |
+| PA2 | A | UART TX (USART2) | Alternate Function Push‑Pull | AF7 (USART2) |
+| PA3 | A | UART RX (USART2) | Alternate Function Push‑Pull | AF7 (USART2) |
+
 
 ## Troubleshooting
 
